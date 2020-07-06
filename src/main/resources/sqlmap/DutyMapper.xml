@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjy.dao.DutyMapper" >
+  <resultMap id="BaseResultMap" type="com.zjy.entity.Duty" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="doctor_no" property="doctorNo" jdbcType="VARCHAR" />
+    <result column="Monday" property="monday" jdbcType="VARCHAR" />
+    <result column="Monday_rest" property="mondayRest" jdbcType="INTEGER" />
+    <result column="Tuesday" property="tuesday" jdbcType="VARCHAR" />
+    <result column="Tuesday_rest" property="tuesdayRest" jdbcType="INTEGER" />
+    <result column="Wednesday" property="wednesday" jdbcType="VARCHAR" />
+    <result column="Wednesday_rest" property="wednesdayRest" jdbcType="INTEGER" />
+    <result column="Thursday" property="thursday" jdbcType="VARCHAR" />
+    <result column="Thursday_rest" property="thursdayRest" jdbcType="INTEGER" />
+    <result column="Friday" property="friday" jdbcType="VARCHAR" />
+    <result column="Friday_rest" property="fridayRest" jdbcType="INTEGER" />
+    <result column="Saturday" property="saturday" jdbcType="VARCHAR" />
+    <result column="Saturday_rest" property="saturdayRest" jdbcType="INTEGER" />
+    <result column="Sunday" property="sunday" jdbcType="VARCHAR" />
+    <result column="Sunday_rest" property="sundayRest" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, doctor_no, Monday, Monday_rest, Tuesday, Tuesday_rest, Wednesday, Wednesday_rest, 
+    Thursday, Thursday_rest, Friday, Friday_rest, Saturday, Saturday_rest, Sunday, Sunday_rest
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from duty
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <select id="selectDutyByPage" resultType="com.zjy.vo.DutyResult" parameterType="HashMap">
+  	select do.doctor_name as doctorName, du.* from duty du 
+  	left join doctor do on du.doctor_no = do.doctor_no 
+  	<where>
+  		<if test="doctorName != null">
+    		and doctor_name like CONCAT('%',#{doctorName, jdbcType=VARCHAR},'%')
+  		</if>
+  	</where>
+  </select>
+  <select id="selectDutyByNo" resultMap="BaseResultMap" parameterType="java.lang.String" >
+  	select 
+    <include refid="Base_Column_List" />
+    from duty
+    where doctor_no = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectDoctorByDuty" resultType="java.lang.String" parameterType="com.zjy.entity.Duty">
+  	select 
+    doctor_no
+    from duty
+    <where>
+      <if test="monday != null" >
+        and Monday = #{monday,jdbcType=VARCHAR} and Monday_rest &gt; 0
+      </if>
+      <if test="tuesday != null" >
+        and Tuesday = #{tuesday,jdbcType=VARCHAR} and Tuesday_rest &gt; 0
+      </if>
+      <if test="wednesday != null" >
+        and Wednesday = #{wednesday,jdbcType=VARCHAR} and Wednesday_rest &gt; 0
+      </if>
+      <if test="thursday != null" >
+        and Thursday = #{thursday,jdbcType=VARCHAR} and Thursday_rest &gt; 0
+      </if>
+      <if test="friday != null" >
+        and Friday = #{friday,jdbcType=VARCHAR} and Friday_rest &gt; 0
+      </if>
+      <if test="saturday != null" >
+        and Saturday = #{saturday,jdbcType=VARCHAR} and Saturday_rest &gt; 0
+      </if>
+      <if test="sunday != null" >
+        and Sunday = #{sunday,jdbcType=VARCHAR} and Sunday_rest &gt; 0
+      </if>
+    </where>
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from duty
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByDoctorNo" parameterType="java.lang.String" >
+    delete from duty
+    where doctor_no = #{doctorNo,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.zjy.entity.Duty" >
+    insert into duty (id, doctor_no, Monday, 
+      Monday_rest, Tuesday, Tuesday_rest, 
+      Wednesday, Wednesday_rest, Thursday, 
+      Thursday_rest, Friday, Friday_rest, 
+      Saturday, Saturday_rest, Sunday, 
+      Sunday_rest)
+    values (#{id,jdbcType=VARCHAR}, #{doctorNo,jdbcType=VARCHAR}, #{monday,jdbcType=VARCHAR}, 
+      #{mondayRest,jdbcType=INTEGER}, #{tuesday,jdbcType=VARCHAR}, #{tuesdayRest,jdbcType=INTEGER}, 
+      #{wednesday,jdbcType=VARCHAR}, #{wednesdayRest,jdbcType=INTEGER}, #{thursday,jdbcType=VARCHAR}, 
+      #{thursdayRest,jdbcType=INTEGER}, #{friday,jdbcType=VARCHAR}, #{fridayRest,jdbcType=INTEGER}, 
+      #{saturday,jdbcType=VARCHAR}, #{saturdayRest,jdbcType=INTEGER}, #{sunday,jdbcType=VARCHAR}, 
+      #{sundayRest,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zjy.entity.Duty" >
+    insert into duty
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="doctorNo != null" >
+        doctor_no,
+      </if>
+      <if test="monday != null" >
+        Monday,
+      </if>
+      <if test="mondayRest != null" >
+        Monday_rest,
+      </if>
+      <if test="tuesday != null" >
+        Tuesday,
+      </if>
+      <if test="tuesdayRest != null" >
+        Tuesday_rest,
+      </if>
+      <if test="wednesday != null" >
+        Wednesday,
+      </if>
+      <if test="wednesdayRest != null" >
+        Wednesday_rest,
+      </if>
+      <if test="thursday != null" >
+        Thursday,
+      </if>
+      <if test="thursdayRest != null" >
+        Thursday_rest,
+      </if>
+      <if test="friday != null" >
+        Friday,
+      </if>
+      <if test="fridayRest != null" >
+        Friday_rest,
+      </if>
+      <if test="saturday != null" >
+        Saturday,
+      </if>
+      <if test="saturdayRest != null" >
+        Saturday_rest,
+      </if>
+      <if test="sunday != null" >
+        Sunday,
+      </if>
+      <if test="sundayRest != null" >
+        Sunday_rest,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorNo != null" >
+        #{doctorNo,jdbcType=VARCHAR},
+      </if>
+      <if test="monday != null" >
+        #{monday,jdbcType=VARCHAR},
+      </if>
+      <if test="mondayRest != null" >
+        #{mondayRest,jdbcType=INTEGER},
+      </if>
+      <if test="tuesday != null" >
+        #{tuesday,jdbcType=VARCHAR},
+      </if>
+      <if test="tuesdayRest != null" >
+        #{tuesdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="wednesday != null" >
+        #{wednesday,jdbcType=VARCHAR},
+      </if>
+      <if test="wednesdayRest != null" >
+        #{wednesdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="thursday != null" >
+        #{thursday,jdbcType=VARCHAR},
+      </if>
+      <if test="thursdayRest != null" >
+        #{thursdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="friday != null" >
+        #{friday,jdbcType=VARCHAR},
+      </if>
+      <if test="fridayRest != null" >
+        #{fridayRest,jdbcType=INTEGER},
+      </if>
+      <if test="saturday != null" >
+        #{saturday,jdbcType=VARCHAR},
+      </if>
+      <if test="saturdayRest != null" >
+        #{saturdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="sunday != null" >
+        #{sunday,jdbcType=VARCHAR},
+      </if>
+      <if test="sundayRest != null" >
+        #{sundayRest,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateDuty" parameterType="com.zjy.entity.Duty" >
+    update duty
+    <set >
+      <if test="mondayRest != null" >
+        Monday_rest = #{mondayRest,jdbcType=INTEGER},
+      </if>
+      <if test="tuesdayRest != null" >
+        Tuesday_rest = #{tuesdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="wednesdayRest != null" >
+        Wednesday_rest = #{wednesdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="thursdayRest != null" >
+        Thursday_rest = #{thursdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="fridayRest != null" >
+        Friday_rest = #{fridayRest,jdbcType=INTEGER},
+      </if>
+      <if test="saturdayRest != null" >
+        Saturday_rest = #{saturdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="sundayRest != null" >
+        Sunday_rest = #{sundayRest,jdbcType=INTEGER},
+      </if>
+    </set>
+    <where>
+      <if test="mondayRest != null" >
+        and Monday = 1
+      </if>
+      <if test="tuesdayRest != null" >
+        and Tuesday = 1
+      </if>
+      <if test="wednesdayRest != null" >
+        and Wednesday = 1
+      </if>
+      <if test="thursdayRest != null" >
+        and Thursday = 1
+      </if>
+      <if test="fridayRest != null" >
+        and Friday = 1
+      </if>
+      <if test="saturdayRest != null" >
+        and Saturday = 1
+      </if>
+      <if test="sundayRest != null" >
+        and Sunday = 1
+      </if>
+    </where>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zjy.entity.Duty" >
+    update duty
+    <set >
+      <if test="doctorNo != null" >
+        doctor_no = #{doctorNo,jdbcType=VARCHAR},
+      </if>
+      <if test="monday != null" >
+        Monday = #{monday,jdbcType=VARCHAR},
+      </if>
+      <if test="mondayRest != null" >
+        Monday_rest = #{mondayRest,jdbcType=INTEGER},
+      </if>
+      <if test="tuesday != null" >
+        Tuesday = #{tuesday,jdbcType=VARCHAR},
+      </if>
+      <if test="tuesdayRest != null" >
+        Tuesday_rest = #{tuesdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="wednesday != null" >
+        Wednesday = #{wednesday,jdbcType=VARCHAR},
+      </if>
+      <if test="wednesdayRest != null" >
+        Wednesday_rest = #{wednesdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="thursday != null" >
+        Thursday = #{thursday,jdbcType=VARCHAR},
+      </if>
+      <if test="thursdayRest != null" >
+        Thursday_rest = #{thursdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="friday != null" >
+        Friday = #{friday,jdbcType=VARCHAR},
+      </if>
+      <if test="fridayRest != null" >
+        Friday_rest = #{fridayRest,jdbcType=INTEGER},
+      </if>
+      <if test="saturday != null" >
+        Saturday = #{saturday,jdbcType=VARCHAR},
+      </if>
+      <if test="saturdayRest != null" >
+        Saturday_rest = #{saturdayRest,jdbcType=INTEGER},
+      </if>
+      <if test="sunday != null" >
+        Sunday = #{sunday,jdbcType=VARCHAR},
+      </if>
+      <if test="sundayRest != null" >
+        Sunday_rest = #{sundayRest,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zjy.entity.Duty" >
+    update duty
+    set doctor_no = #{doctorNo,jdbcType=VARCHAR},
+      Monday = #{monday,jdbcType=VARCHAR},
+      Monday_rest = #{mondayRest,jdbcType=INTEGER},
+      Tuesday = #{tuesday,jdbcType=VARCHAR},
+      Tuesday_rest = #{tuesdayRest,jdbcType=INTEGER},
+      Wednesday = #{wednesday,jdbcType=VARCHAR},
+      Wednesday_rest = #{wednesdayRest,jdbcType=INTEGER},
+      Thursday = #{thursday,jdbcType=VARCHAR},
+      Thursday_rest = #{thursdayRest,jdbcType=INTEGER},
+      Friday = #{friday,jdbcType=VARCHAR},
+      Friday_rest = #{fridayRest,jdbcType=INTEGER},
+      Saturday = #{saturday,jdbcType=VARCHAR},
+      Saturday_rest = #{saturdayRest,jdbcType=INTEGER},
+      Sunday = #{sunday,jdbcType=VARCHAR},
+      Sunday_rest = #{sundayRest,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

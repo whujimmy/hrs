@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjy.dao.DepartmentMapper" >
+  <resultMap id="BaseResultMap" type="com.zjy.entity.Department" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="department_no" property="departmentNo" jdbcType="VARCHAR" />
+    <result column="department_name" property="departmentName" jdbcType="VARCHAR" />
+    <result column="is_deleted" property="isDeleted" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, department_no, department_name, is_deleted, create_time, update_time
+  </sql>
+  <select id="selectDepartment" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from department
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from department
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectPageListByName" resultMap="BaseResultMap" parameterType="com.zjy.entity.Department" >
+    select 
+    <include refid="Base_Column_List" />
+    from department
+    <where>
+    	is_deleted = 0
+	    <if test="departmentName != null" >
+	    	and department_name like CONCAT('%',#{departmentName, jdbcType=VARCHAR},'%')
+	    </if>
+	</where>
+    order by department_no
+  </select>
+  
+  <select id="selectByDeptNo" parameterType="String" resultMap="BaseResultMap">
+  	select 
+    <include refid="Base_Column_List" />
+    from department
+    where department_no = #{departmentNo,jdbcType=VARCHAR}
+  </select>
+  
+  <update id="deleteByDeptNo" parameterType="java.lang.String" >
+    update department set is_deleted = 1 where department_no = #{departmentNo,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateByNo" parameterType="java.lang.String">
+  	update department set department_name = #{depName,jdbcType=VARCHAR} where department_no = #{departmentNo,jdbcType=VARCHAR}
+  </update>
+  
+  <insert id="insert" parameterType="com.zjy.entity.Department" >
+    insert into department (id, department_no, department_name, 
+      is_deleted, create_time, update_time
+      )
+    values (#{id,jdbcType=VARCHAR}, #{departmentNo,jdbcType=VARCHAR}, #{departmentName,jdbcType=VARCHAR}, 
+      #{isDeleted,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.zjy.entity.Department" >
+    insert into department
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="departmentNo != null" >
+        department_no,
+      </if>
+      <if test="departmentName != null" >
+        department_name,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="departmentNo != null" >
+        #{departmentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="departmentName != null" >
+        #{departmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zjy.entity.Department" >
+    update department
+    <set >
+      <if test="departmentNo != null" >
+        department_no = #{departmentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="departmentName != null" >
+        department_name = #{departmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zjy.entity.Department" >
+    update department
+    set department_no = #{departmentNo,jdbcType=VARCHAR},
+      department_name = #{departmentName,jdbcType=VARCHAR},
+      is_deleted = #{isDeleted,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

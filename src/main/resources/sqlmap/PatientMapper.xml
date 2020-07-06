@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjy.dao.PatientMapper" >
+  <resultMap id="BaseResultMap" type="com.zjy.entity.Patient" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="patient_no" property="patientNo" jdbcType="VARCHAR" />
+    <result column="patient_name" property="patientName" jdbcType="VARCHAR" />
+    <result column="patient_password" property="patientPassword" jdbcType="VARCHAR" />
+    <result column="patient_salt" property="patientSalt" jdbcType="VARCHAR" />
+    <result column="patient_sex" property="patientSex" jdbcType="VARCHAR" />
+    <result column="patient_birth" property="patientBirth" jdbcType="DATE" />
+    <result column="patient_phone" property="patientPhone" jdbcType="VARCHAR" />
+    <result column="is_deleted" property="isDeleted" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, patient_no, patient_name, patient_password, patient_salt, patient_sex, patient_birth, 
+    patient_phone, is_deleted, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from patient
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectByPatientNo" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from patient
+    where patient_no = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="pageQueryPatientByWhere" resultMap="BaseResultMap" parameterType="HashMap">
+  	select
+    <include refid="Base_Column_List" />
+    from patient
+    <where>
+    	<if test="patientName != null">
+    		and patient_name like CONCAT('%',#{patientName, jdbcType=VARCHAR},'%')
+    	</if>
+    	<if test="patientSex != null">
+    		and patient_sex = #{patientSex, jdbcType=VARCHAR}
+    	</if>
+    	<if test="patientPhone != null">
+    		and patient_phone like CONCAT('%',#{patientPhone, jdbcType=VARCHAR},'%')
+    	</if>
+<!--     	<if test="patientMinAge != null and patientMaxAge != null"> -->
+<!--     		and TIMESTAMPDIFF(YEAR, patient_birth, CURDATE()) between #{patientMinAge, jdbcType=INTEGER} and #{patientMaxAge, jdbcType=INTEGER} -->
+<!--     	</if> -->
+    	<if test="patientMinAge != null">
+    		and TIMESTAMPDIFF(YEAR, patient_birth, CURDATE()) &gt;= #{patientMinAge, jdbcType=INTEGER}
+    	</if>
+    	<if test="patientMaxAge != null">
+    		and TIMESTAMPDIFF(YEAR, patient_birth, CURDATE()) &lt;= #{patientMaxAge, jdbcType=INTEGER}
+    	</if>
+<!--     	<if test="patientMaxAge != null"> -->
+<!--     		and TIMESTAMPDIFF(YEAR, patient_birth, CURDATE()) <![CDATA[ <= ]]> #{patientMaxAge, jdbcType=INTEGER} -->
+<!--     	</if> -->
+    </where>
+  </select>
+  
+  <update id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    update patient set is_deleted = 1 where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <insert id="insert" parameterType="com.zjy.entity.Patient" >
+    insert into patient (id, patient_no, patient_name, 
+      patient_password, patient_salt, patient_sex, 
+      patient_birth, patient_phone, is_deleted, 
+      create_time, update_time)
+    values (#{id,jdbcType=VARCHAR}, #{patientNo,jdbcType=VARCHAR}, #{patientName,jdbcType=VARCHAR}, 
+      #{patientPassword,jdbcType=VARCHAR}, #{patientSalt,jdbcType=VARCHAR}, #{patientSex,jdbcType=VARCHAR}, 
+      #{patientBirth,jdbcType=DATE}, #{patientPhone,jdbcType=VARCHAR}, #{isDeleted,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zjy.entity.Patient" >
+    insert into patient
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="patientNo != null" >
+        patient_no,
+      </if>
+      <if test="patientName != null" >
+        patient_name,
+      </if>
+      <if test="patientPassword != null" >
+        patient_password,
+      </if>
+      <if test="patientSalt != null" >
+        patient_salt,
+      </if>
+      <if test="patientSex != null" >
+        patient_sex,
+      </if>
+      <if test="patientBirth != null" >
+        patient_birth,
+      </if>
+      <if test="patientPhone != null" >
+        patient_phone,
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="patientNo != null" >
+        #{patientNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patientName != null" >
+        #{patientName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientPassword != null" >
+        #{patientPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="patientSalt != null" >
+        #{patientSalt,jdbcType=VARCHAR},
+      </if>
+      <if test="patientSex != null" >
+        #{patientSex,jdbcType=VARCHAR},
+      </if>
+      <if test="patientBirth != null" >
+        #{patientBirth,jdbcType=DATE},
+      </if>
+      <if test="patientPhone != null" >
+        #{patientPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zjy.entity.Patient" >
+    update patient
+    <set >
+      <if test="patientNo != null" >
+        patient_no = #{patientNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patientName != null" >
+        patient_name = #{patientName,jdbcType=VARCHAR},
+      </if>
+      <if test="patientPassword != null" >
+        patient_password = #{patientPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="patientSalt != null" >
+        patient_salt = #{patientSalt,jdbcType=VARCHAR},
+      </if>
+      <if test="patientSex != null" >
+        patient_sex = #{patientSex,jdbcType=VARCHAR},
+      </if>
+      <if test="patientBirth != null" >
+        patient_birth = #{patientBirth,jdbcType=DATE},
+      </if>
+      <if test="patientPhone != null" >
+        patient_phone = #{patientPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="isDeleted != null" >
+        is_deleted = #{isDeleted,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zjy.entity.Patient" >
+    update patient
+    set patient_no = #{patientNo,jdbcType=VARCHAR},
+      patient_name = #{patientName,jdbcType=VARCHAR},
+      patient_password = #{patientPassword,jdbcType=VARCHAR},
+      patient_salt = #{patientSalt,jdbcType=VARCHAR},
+      patient_sex = #{patientSex,jdbcType=VARCHAR},
+      patient_birth = #{patientBirth,jdbcType=DATE},
+      patient_phone = #{patientPhone,jdbcType=VARCHAR},
+      is_deleted = #{isDeleted,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

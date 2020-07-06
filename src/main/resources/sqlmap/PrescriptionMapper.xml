@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjy.dao.PrescriptionMapper" >
+  <resultMap id="BaseResultMap" type="com.zjy.entity.Prescription" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="registration_no" property="registrationNo" jdbcType="VARCHAR" />
+    <result column="medicine_no" property="medicineNo" jdbcType="VARCHAR" />
+    <result column="medicine_amount" property="medicineAmount" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, registration_no, medicine_no, medicine_amount
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from prescription
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByRegistrationNo" resultType="com.zjy.vo.PrescriptionResult" parameterType="java.lang.String" >
+    select 
+    m.medicine_name as medicineName, p.medicine_amount as medicineAmount
+    from prescription p
+    left join medicine m on p.medicine_no = m.medicine_no
+    where registration_no = #{registrationNo,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByNo" resultType="com.zjy.entity.Prescription" parameterType="String">
+  	select * from prescription where registration_no = #{registrationNo,jdbcType=VARCHAR} 
+  	and medicine_no=#{medicineNo,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from prescription
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.zjy.entity.Prescription" >
+    insert into prescription (id, registration_no, medicine_no, 
+      medicine_amount)
+    values (#{id,jdbcType=VARCHAR}, #{registrationNo,jdbcType=VARCHAR}, #{medicineNo,jdbcType=VARCHAR}, 
+      #{medicineAmount,jdbcType=INTEGER})
+  </insert>
+  
+  <insert id="addPrescriptions">
+  	insert into prescription (id, registration_no, medicine_no, 
+      medicine_amount) values 
+      <foreach collection="list" item="pre" separator=",">
+      	(#{pre.id},#{pre.registrationNo},#{pre.medicineNo},#{pre.medicineAmount})
+      </foreach>
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.zjy.entity.Prescription" >
+    insert into prescription
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="registrationNo != null" >
+        registration_no,
+      </if>
+      <if test="medicineNo != null" >
+        medicine_no,
+      </if>
+      <if test="medicineAmount != null" >
+        medicine_amount,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="registrationNo != null" >
+        #{registrationNo,jdbcType=VARCHAR},
+      </if>
+      <if test="medicineNo != null" >
+        #{medicineNo,jdbcType=VARCHAR},
+      </if>
+      <if test="medicineAmount != null" >
+        #{medicineAmount,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zjy.entity.Prescription" >
+    update prescription
+    <set >
+      <if test="registrationNo != null" >
+        registration_no = #{registrationNo,jdbcType=VARCHAR},
+      </if>
+      <if test="medicineNo != null" >
+        medicine_no = #{medicineNo,jdbcType=VARCHAR},
+      </if>
+      <if test="medicineAmount != null" >
+        medicine_amount = #{medicineAmount,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zjy.entity.Prescription" >
+    update prescription
+    set registration_no = #{registrationNo,jdbcType=VARCHAR},
+      medicine_no = #{medicineNo,jdbcType=VARCHAR},
+      medicine_amount = #{medicineAmount,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

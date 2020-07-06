@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjy.dao.VisitMapper" >
+  <resultMap id="BaseResultMap" type="com.zjy.entity.Visit" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="registration_no" property="registrationNo" jdbcType="VARCHAR" />
+    <result column="patient_no" property="patientNo" jdbcType="VARCHAR" />
+    <result column="department_no" property="departmentNo" jdbcType="VARCHAR" />
+    <result column="doctor_no" property="doctorNo" jdbcType="VARCHAR" />
+    <result column="appointment_time" property="appointmentTime" jdbcType="TIMESTAMP" />
+    <result column="visit_time" property="visitTime" jdbcType="DATE" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.zjy.entity.Visit" extends="BaseResultMap" >
+    <result column="diagnostic_description" property="diagnosticDescription" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, registration_no, patient_no, department_no, doctor_no, appointment_time, visit_time, 
+    status, create_time, update_time
+  </sql>
+  <sql id="Blob_Column_List" >
+    diagnostic_description
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from visit
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByPatientNo" resultType="com.zjy.vo.VisitResult" parameterType="HashMap">
+  	select
+  		v.registration_no as registrationNo, dept.department_name as departmentName, doc.doctor_name as doctorName,
+  		v.visit_time as visitTime, v.diagnostic_description as diagnosticDescription
+  	from visit v
+  	left join department dept on v.department_no = dept.department_no
+  	left join doctor doc on v.doctor_no = doc.doctor_no
+    <where>
+    	v.patient_no = #{patientNo,jdbcType=VARCHAR}
+    	<if test="departmentNo != null">
+    		and v.department_no = #{departmentNo, jdbcType=VARCHAR}
+    	</if>
+    	<if test="beginDate != null">
+    		and v.visit_time &gt;= #{beginDate, jdbcType=INTEGER}
+    	</if>
+    	<if test="endDate != null">
+    		and v.visit_time &lt;= #{endDate, jdbcType=INTEGER}
+    	</if>
+    </where>
+    order by visit_time desc
+  </select>
+  
+  <select id="selectByNo" resultMap="BaseResultMap" parameterType="String">
+  	select 
+  	<include refid="Base_Column_List" /> 
+  	from visit 
+  	where registration_no=#{registrationNo,jdbcType=VARCHAR}
+  </select>
+  
+  <update id="updateDiagnostic" parameterType="String">
+  	update visit set diagnostic_description=#{diagnostic,jdbcType=LONGVARCHAR} where registration_no=#{registrationNo,jdbcType=VARCHAR}
+  </update>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from visit
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.zjy.entity.Visit" >
+    insert into visit (id, registration_no, patient_no, 
+      department_no, doctor_no, appointment_time, 
+      visit_time, status, create_time, 
+      update_time, diagnostic_description)
+    values (#{id,jdbcType=VARCHAR}, #{registrationNo,jdbcType=VARCHAR}, #{patientNo,jdbcType=VARCHAR}, 
+      #{departmentNo,jdbcType=VARCHAR}, #{doctorNo,jdbcType=VARCHAR}, #{appointmentTime,jdbcType=TIMESTAMP}, 
+      #{visitTime,jdbcType=DATE}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{diagnosticDescription,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.zjy.entity.Visit" >
+    insert into visit
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="registrationNo != null" >
+        registration_no,
+      </if>
+      <if test="patientNo != null" >
+        patient_no,
+      </if>
+      <if test="departmentNo != null" >
+        department_no,
+      </if>
+      <if test="doctorNo != null" >
+        doctor_no,
+      </if>
+      <if test="appointmentTime != null" >
+        appointment_time,
+      </if>
+      <if test="visitTime != null" >
+        visit_time,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="diagnosticDescription != null" >
+        diagnostic_description,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="registrationNo != null" >
+        #{registrationNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patientNo != null" >
+        #{patientNo,jdbcType=VARCHAR},
+      </if>
+      <if test="departmentNo != null" >
+        #{departmentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorNo != null" >
+        #{doctorNo,jdbcType=VARCHAR},
+      </if>
+      <if test="appointmentTime != null" >
+        #{appointmentTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="visitTime != null" >
+        #{visitTime,jdbcType=DATE},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="diagnosticDescription != null" >
+        #{diagnosticDescription,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zjy.entity.Visit" >
+    update visit
+    <set >
+      <if test="registrationNo != null" >
+        registration_no = #{registrationNo,jdbcType=VARCHAR},
+      </if>
+      <if test="patientNo != null" >
+        patient_no = #{patientNo,jdbcType=VARCHAR},
+      </if>
+      <if test="departmentNo != null" >
+        department_no = #{departmentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorNo != null" >
+        doctor_no = #{doctorNo,jdbcType=VARCHAR},
+      </if>
+      <if test="appointmentTime != null" >
+        appointment_time = #{appointmentTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="visitTime != null" >
+        visit_time = #{visitTime,jdbcType=DATE},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="diagnosticDescription != null" >
+        diagnostic_description = #{diagnosticDescription,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.zjy.entity.Visit" >
+    update visit
+    set registration_no = #{registrationNo,jdbcType=VARCHAR},
+      patient_no = #{patientNo,jdbcType=VARCHAR},
+      department_no = #{departmentNo,jdbcType=VARCHAR},
+      doctor_no = #{doctorNo,jdbcType=VARCHAR},
+      appointment_time = #{appointmentTime,jdbcType=TIMESTAMP},
+      visit_time = #{visitTime,jdbcType=DATE},
+      status = #{status,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      diagnostic_description = #{diagnosticDescription,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zjy.entity.Visit" >
+    update visit
+    set registration_no = #{registrationNo,jdbcType=VARCHAR},
+      patient_no = #{patientNo,jdbcType=VARCHAR},
+      department_no = #{departmentNo,jdbcType=VARCHAR},
+      doctor_no = #{doctorNo,jdbcType=VARCHAR},
+      appointment_time = #{appointmentTime,jdbcType=TIMESTAMP},
+      visit_time = #{visitTime,jdbcType=DATE},
+      status = #{status,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

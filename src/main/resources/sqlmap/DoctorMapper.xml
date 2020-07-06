@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.zjy.dao.DoctorMapper" >
+  <resultMap id="BaseResultMap" type="com.zjy.entity.Doctor" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="doctor_no" property="doctorNo" jdbcType="VARCHAR" />
+    <result column="doctor_name" property="doctorName" jdbcType="VARCHAR" />
+    <result column="doctor_password" property="doctorPassword" jdbcType="VARCHAR" />
+    <result column="doctor_salt" property="doctorSalt" jdbcType="VARCHAR" />
+    <result column="doctor_sex" property="doctorSex" jdbcType="VARCHAR" />
+    <result column="doctor_birth" property="doctorBirth" jdbcType="DATE" />
+    <result column="doctor_phone" property="doctorPhone" jdbcType="VARCHAR" />
+    <result column="doctor_registration_fee" property="doctorRegistrationFee" jdbcType="DOUBLE" />
+    <result column="doctor_hire_time" property="doctorHireTime" jdbcType="DATE" />
+    <result column="doctor_department_no" property="doctorDepartmentNo" jdbcType="VARCHAR" />
+    <result column="doctor_quit_time" property="doctorQuitTime" jdbcType="DATE" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, doctor_no, doctor_name, doctor_password, doctor_salt, doctor_sex, doctor_birth, 
+    doctor_phone, doctor_registration_fee, doctor_hire_time, doctor_department_no, doctor_quit_time, 
+    type, create_time, update_time
+  </sql>
+  
+  <select id="selectDoctorNoDuty" resultMap="BaseResultMap">
+  	select
+    <include refid="Base_Column_List" />
+    from doctor
+    where doctor_no not in (select doctor_no from duty)
+    and doctor_name != "admin"
+  </select>
+  
+  <select id="queryListByRegNo" resultType="com.zjy.vo.RegistrationResult" parameterType="String" >
+    select 
+    r.registration_no,patient_name  
+    from registration r 
+    join patient p 
+    on r.patient_no=p.patient_no
+    <where>
+	    <if test="regNo != null and regNo != ''" >
+	    	and registration_no=#{regNo, jdbcType=VARCHAR}
+	    </if>
+	    and visit_time=date_format(now(),'%y-%m-%d')
+	    and status = "1"
+	</where>
+    order by department_no
+  </select>
+  
+  <select id="selectDoctorByDepartment" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from doctor
+    where doctor_department_no = #{departmentNo,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectDoctorByDepartmentAndDuty" resultMap="BaseResultMap" parameterType="HashMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from doctor
+    <where>
+	    doctor_department_no = #{departmentNo,jdbcType=VARCHAR}
+	    <if test="doctorNos != null">
+		    and doctor_no in 
+			<foreach item="item" index="index" collection="doctorNos"
+			    open="(" separator="," close=")">
+			      #{item}
+			</foreach>
+		</if>
+	</where>
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from doctor
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectByDoctorNo" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from doctor
+    where doctor_no = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="queryDoctor" parameterType="HashMap" resultType="com.zjy.vo.DoctorResult">
+  	select 
+    doctor.id, doctor.doctor_no, doctor.doctor_name, doctor.doctor_sex, doctor.doctor_birth, 
+    doctor.doctor_phone, doctor.doctor_registration_fee, doctor.doctor_hire_time, doctor.doctor_department_no, doctor.doctor_quit_time, 
+    doctor.type, doctor.create_time, doctor.update_time, dept.department_name as departmentName
+  	from doctor doctor
+  	left join department dept on doctor.doctor_department_no = dept.department_no
+  	<where>
+  		<if test="name!=null and name!=''">
+	    	and doctor_name like CONCAT('%',#{name},'%')
+  		</if>
+  		<if test="depNo!=null and depNo!=''">
+  			and doctor_department_no=#{depNo}
+  		</if>
+  		<if test="status==0">
+  			and doctor_quit_time is not null
+  		</if>
+  		<if test="status==1">
+  			and doctor_quit_time is null
+  		</if>
+  		<if test="startTime!=null and startTime!='' and endTime!=null and endTime!=''">
+  			and doctor_hire_time between #{startTime} and #{endTime}
+  		</if>
+  	</where>
+  </select>
+  
+  <select id="selectCountByDeptNo"  parameterType="java.lang.String" resultType="java.lang.Integer" >
+  	select count(id)
+  	from doctor
+  	where doctor_department_no = #{departmentNo,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="count" parameterType="HashMap">
+  	select 
+  	count(0) 
+  	from doctor 
+  	<where>
+  		<if test="name!=null and name!=''">
+  			and doctor_name=#{name}
+  		</if>
+  		<if test="depNo!=null and depNo!=''">
+  			and doctor_department_no=#{depNo}
+  		</if>
+  		<if test="status==1">
+  			and doctor_quit_time is not null
+  		</if>
+  		<if test="status==0">
+  			and doctor_quit_time is null
+  		</if>
+  		<if test="startTime!=null and startTime!='' and endTime!=null and endTime!=''">
+  			and doctor_hire_time between #{startTime} and #{endTime}
+  		</if>
+  	</where>
+  </select>
+  
+  <select id="queryDoctorByDepNo" parameterType="String" resultMap="BaseResultMap">
+  	select <include refid="Base_Column_List" /> 
+  	from doctor where doctor_department_no=#{depNo}
+  </select>
+  
+  <update id="deleteByDoctorNo" parameterType="java.lang.String" >
+    update doctor set doctor_quit_time =date_format(now(),'%Y-%m-%d') and update_time=date_format(now(),'%Y-%m-%d %T') 
+    where doctor_no = #{doctorNo,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateByNo" parameterType="com.zjy.entity.Doctor">
+  	update doctor
+    <set >
+      <if test="doctorName != null" >
+        doctor_name = #{doctorName,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorSex != null" >
+        doctor_sex = #{doctorSex,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorBirth != null" >
+        doctor_birth = #{doctorBirth,jdbcType=DATE},
+      </if>
+      <if test="doctorPhone != null" >
+        doctor_phone = #{doctorPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorRegistrationFee != null" >
+        doctor_registration_fee = #{doctorRegistrationFee,jdbcType=DOUBLE},
+      </if>
+      <if test="doctorDepartmentNo != null" >
+        doctor_department_no = #{doctorDepartmentNo,jdbcType=VARCHAR},
+      </if>
+    </set>
+      where doctor_no = #{doctorNo,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="deleteByPrimaryKey" parameterType="com.zjy.entity.Doctor" >
+    update doctor
+    <set >
+      <if test="doctorNo != null" >
+        doctor_no = #{doctorNo,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorName != null" >
+        doctor_name = #{doctorName,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorPassword != null" >
+        doctor_password = #{doctorPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorSalt != null" >
+        doctor_salt = #{doctorSalt,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorSex != null" >
+        doctor_sex = #{doctorSex,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorBirth != null" >
+        doctor_birth = #{doctorBirth,jdbcType=DATE},
+      </if>
+      <if test="doctorPhone != null" >
+        doctor_phone = #{doctorPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorRegistrationFee != null" >
+        doctor_registration_fee = #{doctorRegistrationFee,jdbcType=DOUBLE},
+      </if>
+      <if test="doctorHireTime != null" >
+        doctor_hire_time = #{doctorHireTime,jdbcType=DATE},
+      </if>
+      <if test="doctorDepartmentNo != null" >
+        doctor_department_no = #{doctorDepartmentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorQuitTime != null" >
+        doctor_quit_time = #{doctorQuitTime,jdbcType=DATE},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <insert id="insert" parameterType="com.zjy.entity.Doctor" >
+    insert into doctor (
+		<include refid="Base_Column_List" />
+      )
+    values (#{id,jdbcType=VARCHAR}, #{doctorNo,jdbcType=VARCHAR}, #{doctorName,jdbcType=VARCHAR}, 
+      #{doctorPassword,jdbcType=VARCHAR}, #{doctorSalt,jdbcType=VARCHAR}, #{doctorSex,jdbcType=VARCHAR}, 
+      #{doctorBirth,jdbcType=DATE}, #{doctorPhone,jdbcType=VARCHAR}, #{doctorRegistrationFee,jdbcType=DOUBLE}, 
+      #{doctorHireTime,jdbcType=DATE}, #{doctorDepartmentNo,jdbcType=VARCHAR}, #{doctorQuitTime,jdbcType=DATE}, 
+      #{type,jdbcType=VARCHAR}, date_format(now(),'%Y-%m-%d %T'), date_format(now(),'%Y-%m-%d %T')
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.zjy.entity.Doctor" >
+    insert into doctor
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="doctorNo != null" >
+        doctor_no,
+      </if>
+      <if test="doctorName != null" >
+        doctor_name,
+      </if>
+      <if test="doctorPassword != null" >
+        doctor_password,
+      </if>
+      <if test="doctorSalt != null" >
+        doctor_salt,
+      </if>
+      <if test="doctorSex != null" >
+        doctor_sex,
+      </if>
+      <if test="doctorBirth != null" >
+        doctor_birth,
+      </if>
+      <if test="doctorPhone != null" >
+        doctor_phone,
+      </if>
+      <if test="doctorRegistrationFee != null" >
+        doctor_registration_fee,
+      </if>
+      <if test="doctorHireTime != null" >
+        doctor_hire_time,
+      </if>
+      <if test="doctorDepartmentNo != null" >
+        doctor_department_no,
+      </if>
+      <if test="doctorQuitTime != null" >
+        doctor_quit_time,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorNo != null" >
+        #{doctorNo,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorName != null" >
+        #{doctorName,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorPassword != null" >
+        #{doctorPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorSalt != null" >
+        #{doctorSalt,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorSex != null" >
+        #{doctorSex,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorBirth != null" >
+        #{doctorBirth,jdbcType=DATE},
+      </if>
+      <if test="doctorPhone != null" >
+        #{doctorPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorRegistrationFee != null" >
+        #{doctorRegistrationFee,jdbcType=DOUBLE},
+      </if>
+      <if test="doctorHireTime != null" >
+        #{doctorHireTime,jdbcType=DATE},
+      </if>
+      <if test="doctorDepartmentNo != null" >
+        #{doctorDepartmentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorQuitTime != null" >
+        #{doctorQuitTime,jdbcType=DATE},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.zjy.entity.Doctor" >
+    update doctor
+    <set >
+      <if test="doctorNo != null" >
+        doctor_no = #{doctorNo,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorName != null" >
+        doctor_name = #{doctorName,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorPassword != null" >
+        doctor_password = #{doctorPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorSalt != null" >
+        doctor_salt = #{doctorSalt,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorSex != null" >
+        doctor_sex = #{doctorSex,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorBirth != null" >
+        doctor_birth = #{doctorBirth,jdbcType=DATE},
+      </if>
+      <if test="doctorPhone != null" >
+        doctor_phone = #{doctorPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorRegistrationFee != null" >
+        doctor_registration_fee = #{doctorRegistrationFee,jdbcType=DOUBLE},
+      </if>
+      <if test="doctorHireTime != null" >
+        doctor_hire_time = #{doctorHireTime,jdbcType=DATE},
+      </if>
+      <if test="doctorDepartmentNo != null" >
+        doctor_department_no = #{doctorDepartmentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="doctorQuitTime != null" >
+        doctor_quit_time = #{doctorQuitTime,jdbcType=DATE},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.zjy.entity.Doctor" >
+    update doctor
+    set doctor_no = #{doctorNo,jdbcType=VARCHAR},
+      doctor_name = #{doctorName,jdbcType=VARCHAR},
+      doctor_password = #{doctorPassword,jdbcType=VARCHAR},
+      doctor_salt = #{doctorSalt,jdbcType=VARCHAR},
+      doctor_sex = #{doctorSex,jdbcType=VARCHAR},
+      doctor_birth = #{doctorBirth,jdbcType=DATE},
+      doctor_phone = #{doctorPhone,jdbcType=VARCHAR},
+      doctor_registration_fee = #{doctorRegistrationFee,jdbcType=DOUBLE},
+      doctor_hire_time = #{doctorHireTime,jdbcType=DATE},
+      doctor_department_no = #{doctorDepartmentNo,jdbcType=VARCHAR},
+      doctor_quit_time = #{doctorQuitTime,jdbcType=DATE},
+      type = #{type,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="queryRegByNo" parameterType="String" resultType="com.zjy.entity.Registration">
+  	select id, registration_no, patient_no, 
+      department_no, doctor_no, appointment_time, 
+      visit_time, status, create_time, update_time 
+      from registration where registration_no=#{regNo, jdbcType=VARCHAR}
+  </select>
+  
+  <select id="confirm" parameterType="com.zjy.entity.Registration" resultType="com.zjy.vo.ConfirmVo">
+  	select d.doctor_name, t.department_name, p.patient_no, p.patient_name, p.patient_sex 
+	from registration r 
+	join doctor d 
+	on r.doctor_no=d.doctor_no 
+	join department t 
+	on t.department_no=d.doctor_department_no 
+	join patient p 
+	on p.patient_no=r.patient_no 
+	where r.registration_no=#{registrationNo,jdbcType=VARCHAR}
+  </select>
+  
+</mapper>
